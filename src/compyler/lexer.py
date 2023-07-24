@@ -43,7 +43,7 @@ class Token:
 
 
     @staticmethod
-    def lex(text: str, tokens: Union[list, tuple], ignore: list = []) -> list:
+    def lex(text: str, tokens: Union[list, tuple], ignore: list = None) -> list:
         """Scans an entire string for the existence of tokens
         and joins them, ordered, on a list
 
@@ -55,7 +55,10 @@ class Token:
             list: a list of the ordered tokens on the text or None if an error is found
         """
 
-        legal_tokens = [_token for _token in tokens if _token not in ignore]
+        if ignore is None:
+            legal_tokens = tokens
+        else:
+            legal_tokens = [_token for _token in tokens if _token not in ignore]
 
         token_map = dict(
             zip(
