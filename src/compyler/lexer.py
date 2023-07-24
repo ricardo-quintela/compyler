@@ -43,7 +43,7 @@ class Token:
 
 
     @staticmethod
-    def lex(text: str, tokens: Union[list, tuple], ignore: list) -> list:
+    def lex(text: str, tokens: Union[list, tuple], ignore: list = []) -> list:
         """Scans an entire string for the existence of tokens
         and joins them, ordered, on a list
 
@@ -78,18 +78,6 @@ class Token:
             )
 
         return buffer
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @token
