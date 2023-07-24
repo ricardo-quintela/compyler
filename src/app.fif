@@ -1,0 +1,14 @@
+win root{
+    title "Title";
+    size (800,600);
+}
+
+button btn->root{
+    title "Title";
+    size (800,600);
+}
+
+button enother->root{
+    title "Title";
+    size (800,600);
+}
