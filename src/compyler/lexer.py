@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Union, Tuple
 
 # registers a class as a token
-token = dataclass(frozen=True, repr=False)
+token = dataclass(frozen=True, repr=False, order=True)
 
 @token
 class Token:
@@ -43,35 +43,46 @@ class Token:
 
 
     @staticmethod
-    def lex(text: str, tokens: Union[list, tuple], ignore: list = None) -> list:
+    def lex(text: str, tokens: Union[list, tuple], ignore: Union[list, tuple, set] = None) -> list:
         """Scans an entire string for the existence of tokens
         and joins them, ordered, on a list
 
         Args:
             text (str): the string to scan for tokens
             tokens (list | tuple): a list or tuple containing the tokens
+            ignore (list | tuple | set, optional): a list, tuple or set of
+            tokens to ignore. Defaults to None
 
         Returns:
             list: a list of the ordered tokens on the text or None if an error is found
         """
 
-        if ignore is None:
-            legal_tokens = tokens
-        else:
-            legal_tokens = [_token for _token in tokens if _token not in ignore]
+        # transform to a set of strings to make searches more efficiently
+        excluded_tokens = set()
+        if ignore is not None:
+            for _token in ignore:
+                excluded_tokens.add(_token.__name__)
 
+        # map the token classes on a dictionary to call their constructors later
+        # searches for constructors will also be constant time
         token_map = dict(
             zip(
-                [_token.__name__ for _token in legal_tokens],
-                legal_tokens
+                [_token.__name__ for _token in tokens],
+                tokens
             )
         )
 
+        # create the regex that contains all the other regexes
+        # this one will also contain each group of tokens
         token_regex = "|".join(f"(?P<{name}>{value.regex})" for name, value in token_map.items())
 
         buffer = list()
 
         for match in re.finditer(token_regex, text):
+
+            if ignore is not None and match.lastgroup in excluded_tokens:
+                continue
+
             buffer.insert(
                 0,
                 token_map[match.lastgroup](

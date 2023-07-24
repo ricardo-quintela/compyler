@@ -2,9 +2,9 @@
 and one to store expressions
 """
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Tuple
 
-from lexer import Token, EOF
+from .lexer import Token, EOF
 
 production = dataclass(frozen=True, repr=False)
 
@@ -57,6 +57,7 @@ class Production:
         ```
     """
     expression: Expression
+    children: Tuple[int]
 
     def __repr__(self) -> str:
         return self.__class__.__name__

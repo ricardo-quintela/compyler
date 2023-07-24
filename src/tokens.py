@@ -52,14 +52,21 @@ class RBRACE(Token):
     regex: str = r"}"
 
 @token
-class NEWLINE(Token):
-    regex: str = r"\n"
-
-@token
-class LEX_ERROR(Token):
+class STR_ERROR(Token):
     regex: str = r"\"(.|[ \t])*[\n\0]"
 
 
 
+@token
+class COMMENT(Token):
+    regex: str = r"#[^\n]*(\n|$)"
+
+@token
+class NEWLINE(Token):
+    regex: str = r"\n"
+
+
+
+
 TOKENS = Token.__subclasses__()
-IGNORED_TOKENS = [NEWLINE]
+IGNORED_TOKENS = [COMMENT, NEWLINE]
