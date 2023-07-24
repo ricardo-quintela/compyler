@@ -1,6 +1,5 @@
 # pylint: skip-file
-from sr_parser import Production, production, EOF, Expression
-from tokens import *
+from compyler import Production, production, Expression
 
 @production
 class Program(Production):

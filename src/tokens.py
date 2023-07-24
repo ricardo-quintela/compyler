@@ -1,6 +1,6 @@
 # pylint: skip-file
 from typing import Callable
-from lexer import token, Token
+from compyler import token, Token
 
 @token
 class WIN(Token):
