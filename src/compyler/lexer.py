@@ -42,6 +42,7 @@ class Token:
         return self.__class__.__name__
 
 
+
     @staticmethod
     def lex(text: str, tokens: Union[list, tuple], ignore: Union[list, tuple, set] = None) -> list:
         """Scans an entire string for the existence of tokens

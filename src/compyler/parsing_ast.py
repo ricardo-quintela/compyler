@@ -2,13 +2,12 @@ from dataclasses import dataclass
 from typing import List, Union
 
 from .lexer import Token
-from .sr_parser import Production
 
 class Node:
     """Stores a value and children
     """
 
-    def __init__(self, value=Union[Production, str]):
+    def __init__(self, value=Union[Token, str]):
         self.value = value
         self.children: List[Token] = list()
 

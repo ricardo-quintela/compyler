@@ -1,6 +1,8 @@
 # pylint: skip-file
 from compyler import Production, production, Expression
 
+from productions import *
+
 @production
 class Program(Production):
     expression = Expression(

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import List, Union, Tuple
 
 from .lexer import Token, EOF
+from .parsing_ast import AST, Node
 
 production = dataclass(frozen=True, repr=False)
 
@@ -112,6 +113,8 @@ class Production:
 
                 reduce_range = productions[i].try_reduce(stack)
                 if reduce_range != -1:
+
+                    # reduce the top of the stack
                     for _ in range(reduce_range):
                         stack.pop(0)
                     stack.insert(0, productions[i].__name__)
