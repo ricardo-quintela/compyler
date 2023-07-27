@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import List, Union, Tuple
 
 from .lexer import Token, EOF
-from .parsing_ast import AST, Node
 
 production = dataclass(frozen=True, repr=False)
 
