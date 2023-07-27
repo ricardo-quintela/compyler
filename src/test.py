@@ -1,15 +1,35 @@
 # pylint: skip-file
+import pytest
+from compyler import Token, Lexer
 
-from typing import Callable
-from compyler import Token, token
+@pytest.fixture
+def int_token():
+    return Token("INT", "0|[1-9][0-9]*")
 
-@token
-class INT(Token):
-    regex: str = r"0|[1-9][0-9]*"
-    func: Callable = int
+def test_tostring(int_token):
+    assert str(int_token) == "INT"
 
-def test_lex():
+def test_hash(int_token):
+    assert hash(int_token) == hash("INT")
 
-    TOKENS = [INT]
 
-    assert Token.lex("123 abc 456", TOKENS) == [INT(value=456, pos=(8, 10)), INT(value=123, pos=(0,2))]
+@pytest.fixture
+def lexer():
+    return Lexer()
+
+def test_add_token(lexer):
+    lexer.add_token("INT", "0|[1-9][0-9]*")
+
+    assert "INT" in lexer
+
+def test_regex(lexer):
+    lexer.add_token("INT", "0|[1-9][0-9]*")
+
+    assert lexer.get_regex() == "(?P<INT>0|[1-9][0-9]*)"
+
+def test_lex(lexer):
+    lexer.add_token("INT", "0|[1-9][0-9]*")
+
+    text = "123 abc 456"
+
+    assert lexer.tokenize(text) == [("INT", "123"), ("INT", "456")]
