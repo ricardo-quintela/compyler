@@ -2,16 +2,17 @@
 import pytest
 from compyler import Token, Lexer
 
+#* TEST TOKEN
+
 @pytest.fixture
 def int_token():
-    return Token("INT", "0|[1-9][0-9]*")
+    return Token("INT", 123)
 
-def test_tostring(int_token):
+
+def test_tostring_token(int_token):
     assert str(int_token) == "INT"
 
-def test_hash(int_token):
-    assert hash(int_token) == hash("INT")
-
+#* TEST LEX
 
 @pytest.fixture
 def lexer():
@@ -32,4 +33,6 @@ def test_lex(lexer):
 
     text = "123 abc 456"
 
-    assert lexer.tokenize(text) == [("INT", "123"), ("INT", "456")]
+    assert lexer.tokenize(text) == [Token("INT", "123"), Token("INT", "456")]
+
+#* TEST PARSER
