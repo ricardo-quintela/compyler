@@ -24,7 +24,7 @@ class Token:
         return hash(self.name)
 
     def __eq__(self, __value: object) -> bool:
-        return self.name == __value.name
+        return self.name == str(__value)
 
     def __repr__(self) -> str:
         return f"{self.name}: {self.value}"
