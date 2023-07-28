@@ -1,73 +1,78 @@
 # pylint: skip-file
-from compyler import Production, production, Expression
+from compyler import LALRParser
 
-from productions import *
+lalr_parser = LALRParser()
 
-@production
-class Program(Production):
-    expression = Expression(
-        ["Parent", "EOF"],
-        ["Parent", "Children", "EOF"]
-    )
-    root: bool = True
+lalr_parser.add_production(
+    "Program",
+    {
+        ("Parent", "EOF"): (0,),
+        ("Parent", "Children", "EOF"): (0,1)
+    }
+)
 
-@production
-class Parent(Production):
-    expression = Expression(
-        ["WIN", "ID", "Body"]
-    )
+lalr_parser.add_production(
+    "Parent",
+    {
+        ("WIN", "ID", "Body"): (1,2)
+    }
+)
 
-@production
-class Relation(Production):
-    expression = Expression(
-        ["ID", "POINTER", "ID"]
-    )
+lalr_parser.add_production(
+    "Relation",
+    {
+        ("ID", "POINTER", "ID"): (0,2)
+    }
+)
 
-@production
-class Child(Production):
-    expression = Expression(
-        ["Widget", "Relation", "Body"]
-    )
+lalr_parser.add_production(
+    "Child",
+    {
+        ("Widget", "Relation", "Body"): (0,1,2)
+    }
+)
 
-@production
-class Body(Production):
-    expression = Expression(
-        ["LBRACE", "Layout", "RBRACE"]
-    )
+lalr_parser.add_production(
+    "Body",
+    {
+        ("LBRACE", "Layout", "RBRACE"): (1,)
+    }
+)
 
-@production
-class Children(Production):
-    expression = Expression(
-        ["Child"],
-        ["Children", "Children"]
-    )
+lalr_parser.add_production(
+    "Children",
+    {
+        ("Child",): (0,),
+        ("Children", "Children"): (0,1)
+    }
+)
 
-@production
-class Layout(Production):
-    expression = Expression(
-        ["Property"],
-        ["Layout", "Property"],
-        ["Layout", "Layout"],
-    )
+lalr_parser.add_production(
+    "Layout",
+    {
+        ("Property",): (0,),
+        ("Layout", "Layout"): (0,1),
+    }
+)
 
-@production
-class Widget(Production):
-    expression = Expression(
-        ["BUTTON"]
-    )
+lalr_parser.add_production(
+    "Widget",
+    {
+        ("BUTTON",): (0,)
+    }
+)
 
-@production
-class Property(Production):
-    expression = Expression(
-        ["ID", "STRING", "SEMICOLON"],
-        ["ID", "Tuple", "SEMICOLON"]
-    )
+lalr_parser.add_production(
+    "Property",
+    {
+        ("ID", "STRING", "SEMICOLON"): (0,1),
+        ("ID", "Tuple", "SEMICOLON"): (0,1)
+    }
+)
 
-@production
-class Tuple(Production):
-    expression = Expression(
-        ["LPAR", "INT", "COMMA", "INT", "RPAR"]
-    )
-
-
-PRODUCTIONS = Production.__subclasses__()
+lalr_parser.add_production(
+    "Tuple",
+    {
+        ("LPAR", "INT", "COMMA", "INT", "RPAR"): (1,3)
+    }
+)

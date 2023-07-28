@@ -1,7 +1,7 @@
 """Contains a class ready to register tokens
 """
 import re
-from typing import List, Any
+from typing import List, Any, Set
 
 
 class Token:
@@ -49,6 +49,21 @@ class Lexer:
 
     def __repr__(self) -> str:
         return f"Lexer with {len(self.tokens)} registered tokens"
+
+    def filter(self, filters: Set[str], token_buffer: List[Token]):
+        """Removes the specified tokens from the token buffer
+
+        Args:
+            filters (Set[str]): the names of the tokens to remove
+            token_buffer (List[Token]): the list of gathered tokens
+        """
+        i = 0
+        while i < len(token_buffer):
+            if token_buffer[i] in filters:
+                token_buffer.pop(i)
+                continue
+            i += 1
+
 
     def add_token(self, name: str, regex: str):
         """A token can be registered by giving

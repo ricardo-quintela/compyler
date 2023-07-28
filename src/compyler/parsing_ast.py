@@ -14,10 +14,16 @@ class ASTNode:
         return self.name
 
     def __repr__(self) -> str:
-        return f"{self.name}: ({','.join(str(child) for child in self.children)})"
+        return f"{self.name}({len(self.children)}): ({','.join(str(child) for child in self.children)})"
+
+    def __len__(self):
+        return len(self.children)
 
     def __eq__(self, __value: object) -> bool:
         return self.name == str(__value)
+
+    def __getitem__(self, __index):
+        return self.children[__index]
 
     def add_children(self, *children: Union[Token, ASTNode]):
         """Adds children to the end of the children's list
