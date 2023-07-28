@@ -1,72 +1,32 @@
 # pylint: skip-file
-from typing import Callable
-from compyler import token, Token
+from compyler import Lexer
 
-@token
-class WIN(Token):
-    regex: str = r"win"
+tk_lexer = Lexer()
 
-@token
-class BUTTON(Token):
-    regex: str = r"button"
+tk_lexer.add_token("WIN", r"win")
 
-@token
-class INT(Token):
-    regex: str = r"[1-9][0-9]*"
-    func: Callable = int
+tk_lexer.add_token("BUTTON", r"button")
 
-@token
-class STRING(Token):
-    regex: str = r"\"(.|[ \t])*\""
+tk_lexer.add_token("INT", r"0|[1-9][0-9]*")
 
-@token
-class ID(Token):
-    regex: str = r"[a-zA-Z_$][a-zA-Z0-9_$]*"
+tk_lexer.add_token("STRING", r"\"(.|[ \t])*\"")
 
-@token
-class POINTER(Token):
-    regex: str = r"->"
+tk_lexer.add_token("ID", r"[a-zA-Z_$][a-zA-Z0-9_$]*")
 
-@token
-class COMMA(Token):
-    regex: str = r","
+tk_lexer.add_token("POINTER", r"->")
 
-@token
-class LPAR(Token):
-    regex: str = r"\("
+tk_lexer.add_token("COMMA", r",")
 
-@token
-class RPAR(Token):
-    regex: str = r"\)"
+tk_lexer.add_token("LPAR", r"\(")
 
-@token
-class SEMICOLON(Token):
-    regex: str = r";"
+tk_lexer.add_token("RPAR", r"\)")
 
-@token
-class LBRACE(Token):
-    regex: str = r"{"
+tk_lexer.add_token("SEMICOLON", r";")
 
-@token
-class RBRACE(Token):
-    regex: str = r"}"
+tk_lexer.add_token("LBRACE", r"{")
 
-@token
-class STR_ERROR(Token):
-    regex: str = r"\"(.|[ \t])*[\n\0]"
+tk_lexer.add_token("RBRACE", r"}")
 
+tk_lexer.add_token("COMMENT", r"#[^\n]*(\n|$)")
 
-
-@token
-class COMMENT(Token):
-    regex: str = r"#[^\n]*(\n|$)"
-
-@token
-class NEWLINE(Token):
-    regex: str = r"\n"
-
-
-
-
-TOKENS = Token.__subclasses__()
-IGNORED_TOKENS = [COMMENT, NEWLINE]
+tk_lexer.add_token("NEWLINE", r"\n")

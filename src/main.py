@@ -1,9 +1,7 @@
 import sys
 
-from compyler import Token
-from compyler import Production
-from tokens import TOKENS, IGNORED_TOKENS
-from productions import PRODUCTIONS, Program
+from tokens import tk_lexer
+from productions import lalr_parser
 
 def main(args):
 
@@ -12,10 +10,13 @@ def main(args):
     with open(filepath, "r", encoding="utf-8") as file:
         text = file.read()
 
-    text_tokens = Token.lex(text, TOKENS, IGNORED_TOKENS)
-    is_valid = Production.parse(text_tokens, PRODUCTIONS, Program)
+    buffer = tk_lexer.tokenize(text)
+    tk_lexer.filter({"NEWLINE", "COMMENT"}, buffer)
+    parsed_ast = lalr_parser.parse(buffer)
 
-    print(is_valid)
+    print()
+    print(buffer)
+    print(parsed_ast)
 
 if __name__ == "__main__":
     main(sys.argv)

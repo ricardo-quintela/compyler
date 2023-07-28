@@ -1,105 +1,110 @@
 """Contains a class ready to register tokens
 """
 import re
-from dataclasses import dataclass
-from typing import Any, Callable, Union, Tuple
+from typing import List, Any, Set
 
-# registers a class as a token
-token = dataclass(frozen=True, repr=False, order=True)
 
-@token
 class Token:
-    """Registers a token
-
-    The token is composed of:
-    - its name
-    - the position on the text
-    - its value
-    - the regex that it obeys to
-    - a function to convert the text to it's value
-
-    The name is automaticly registered by the class name\n
-    One must call Token.scan to scan the text for tokens
+    """
 
     Examples:
         ```
-        @token
-        class INT(Token):
-            regex: str = r"[1-9][0-9]*"
-            func: Callable = int
+        >>> Token(name='INT', value=123)
+        INT: 123
         ```
     """
-    pos: Tuple[int, int]
-    value: Any
-
-    regex: str
-    func: Callable = str
-
-    def __repr__(self) -> str:
-        return self.__class__.__name__
+    def __init__(self, name: str, value: Any) -> None:
+        self.name: str = name
+        self.value: Any = value
 
     def __str__(self) -> str:
-        return self.__class__.__name__
+        return self.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __eq__(self, __value: object) -> bool:
+        return self.name == str(__value)
+
+    def __repr__(self) -> str:
+        return f"{self.name}: {self.value}"
 
 
 
-    @staticmethod
-    def lex(text: str, tokens: Union[list, tuple], ignore: Union[list, tuple, set] = None) -> list:
-        """Scans an entire string for the existence of tokens
-        and joins them, ordered, on a list
+class Lexer:
+    """A lexer is composed by tokens\n
+    The tokens are registered in order of importance
+    """
+    def __init__(self):
+        self.tokens: List[Token] = list()
+
+    def __len__(self):
+        return len(self.tokens)
+
+    def __contains__(self, _value) -> bool:
+        for token in self.tokens:
+            if token[0] == _value:
+                return True
+        return False
+
+    def __repr__(self) -> str:
+        return f"Lexer with {len(self.tokens)} registered tokens"
+
+    def filter(self, filters: Set[str], token_buffer: List[Token]):
+        """Removes the specified tokens from the token buffer
 
         Args:
-            text (str): the string to scan for tokens
-            tokens (list | tuple): a list or tuple containing the tokens
-            ignore (list | tuple | set, optional): a list, tuple or set of
-            tokens to ignore. Defaults to None
+            filters (Set[str]): the names of the tokens to remove
+            token_buffer (List[Token]): the list of gathered tokens
+        """
+        i = 0
+        while i < len(token_buffer):
+            if token_buffer[i] in filters:
+                token_buffer.pop(i)
+                continue
+            i += 1
+
+
+    def add_token(self, name: str, regex: str):
+        """A token can be registered by giving
+        - its name
+        - the regular expression that defines it
+
+        Args:
+            name (str): the name of the token
+            regex (str): the regular expression that defines the token
+        """
+        self.tokens.append((name, regex))
+
+    def get_regex(self) -> str:
+        """Returns the entire regex of the lexer\n
+        In this case, the formed regex is composed by groups
 
         Returns:
-            list: a list of the ordered tokens on the text or None if an error is found
+            str: the regular expression of the lexer
+        """
+        return "|".join(f"(?P<{token[0]}>{token[1]})" for token in self.tokens)
+
+    def tokenize(self, text: str) -> List[Token]:
+        """Uses the registered tokens to tokenize a given string\n
+        Returns a buffer with the matched tokens.\n
+        All the characters that did not match on the regex are ignored and will not be included
+
+        Args:
+            text (str): the string to tokenize
+
+        Returns:
+            List[Token]: a list of tuples composed by the name of the token
+            and it's value in the string
         """
 
-        # transform to a set of strings to make searches more efficiently
-        excluded_tokens = set()
-        if ignore is not None:
-            for _token in ignore:
-                excluded_tokens.add(_token.__name__)
+        matches = re.finditer(self.get_regex(), text)
 
-        # map the token classes on a dictionary to call their constructors later
-        # searches for constructors will also be constant time
-        token_map = dict(
-            zip(
-                [_token.__name__ for _token in tokens],
-                tokens
-            )
-        )
+        tokenized_string = list()
 
-        # create the regex that contains all the other regexes
-        # this one will also contain each group of tokens
-        token_regex = "|".join(f"(?P<{name}>{value.regex})" for name, value in token_map.items())
-
-        buffer = list()
-
-        for match in re.finditer(token_regex, text):
-
-            if ignore is not None and match.lastgroup in excluded_tokens:
-                continue
-
-            buffer.insert(
-                0,
-                token_map[match.lastgroup](
-                    pos=(match.start(), match.end() - 1),
-                    value=token_map[match.lastgroup].func(match.group())
-                )
+        for match in matches:
+            tokenized_string.append(
+                Token(name=match.lastgroup, value=match.group())
             )
 
-        return buffer
-
-
-@token
-class EOF(Token):
-    """Represents the end-of-file character
-    """
-    pos: tuple = (-1, -1)
-    value: None = None
-    regex: str = r"\0"
-    function: Callable = lambda _: None
+        return tokenized_string

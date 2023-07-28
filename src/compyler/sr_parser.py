@@ -1,125 +1,168 @@
 """Contains a class ready to register productions
 and one to store expressions
 """
-from dataclasses import dataclass
-from typing import List, Union, Tuple
+from typing import Tuple, List, Union, Dict, Iterator
 
-from .lexer import Token, EOF
-from .parsing_ast import AST, Node
+from .lexer import Token
+from .parsing_ast import ASTNode
 
-production = dataclass(frozen=True, repr=False)
+class Production:
+    """Stores the combinations of tokens that compose a production\n
+    A production must also include the indices of which tokens or other
+    productions will be used as children on the AST.\n\n
 
-class Expression:
-    """Stores the combinations of tokens that compose a production
-
+    This means that if the production is:
+        `Vardecl: ID EQ INT PLUS INT SEMICOLON`
+    
+    And the indices are (2,4)\n
+    
+    The result in the AST would be:
+    \n
+    ```
+    Vardecl
+    |   INT
+    |   INT
+    ```
+    
     Examples:
         ```
-        >>> expression = Expression(
-        ...     ["TOKEN1"],
-        ...     ["TOKEN1", "TOKEN2"],
-        ...     ["TOKEN1", "TOKEN3"]
+        >>> production = Production(
+        ...     {
+        ...         ("TOKEN1", "TOKEN2", "TOKEN3"): (1, 2),
+        ...         ("TOKEN1", "TOKEN4", "TOKEN3"): (1, 2)
+        ...     }
         ... )
         ```
     """
+    def __init__(self, name: str, rules: Dict[Tuple[str], Tuple[int]]) -> None:
+        self.name = name
+        self.rules = rules
 
-    def __init__(self, *expression: List[str]) -> None:
-        """Constructor of the class Expression\n
-        One can pass multiple combinations of `str`
+    def __str__(self) -> str:
+        return self.name
+
+    def __contains__(self, __value: Tuple[str]) -> bool:
+        return __value in self.rules
+
+    def __iter__(self) -> Iterator[Dict]:
+        return iter(self.rules)
+
+    def __eq__(self, __value: object) -> bool:
+        return self.name == str(__value)
+
+    def __len__(self):
+        return len(self.rules)
+
+    def get_indices(self, rule: Tuple[str]) -> Union[Tuple[int], None]:
+        """Returns the indices of a given rule
+
+        Args:
+            rule (Tuple[str]): the rule to access on the map via hashing
+
+        Returns:
+            Tuple[int] | None: the indices of the given rule or None if the rule does not exist
         """
-        self.expression = expression
+        return self.rules[rule] if rule in self.rules else None
 
-    def __contains__(self, other):
-        return other in self.expression
+    def add_rule(self, new_rule: Dict[Tuple[str], Tuple[int]]):
+        """Adds a new rule to the rule dictionary
 
-    def __iter__(self):
-        return iter(self.expression)
+        Args:
+            new_rule (Dict[Tuple[str], Tuple[int]]): the rule to add to the map
+        """
+        self.rules.update(new_rule)
 
-    def __repr__(self) -> str:
-        return str(self.expression)
 
 
-@production
-class Production:
-    """Composed of expressions\n
-
-    One can call `Production.parse` to run the shift-reduce
-    parser on a list of tokens gathered by a lexer\n
-    The tokens can either be a registered `Token` or `str`
-
-    Can be used to register other productions
-
-    Examples:
-        ```
-        @production
-        class Tuple(Production):
-            expression = Expression(
-                ["LPAR", "INT", "COMMA", "INT", "RPAR"]
-            )
-        ```
+class LALRParser:
+    """Composed by a list of productions.\n
+    Uses LALR parsing on a token buffer to build an
+    Abstract Syntax Tree.
     """
-    expression: Expression
-    children: Tuple[int]
 
-    def __repr__(self) -> str:
-        return self.__class__.__name__
+    def __init__(self) -> None:
+        self.productions = list()
+
+    def __len__(self):
+        return len(self.productions)
+
+    def __getitem__(self, __index):
+        return self.productions[__index]
 
 
-    @classmethod
-    def try_reduce(cls, stack: List[Union[Token, str]]) -> bool:
-        """Checks if a given stack contains items that
-        can be reduced to the expression
-
-        Args:
-            stack (List[Token | str]): the stack of tokens
-
-        Returns:
-            bool: True if it can be reduced, False otherwise
-        """
-        for expression in cls.expression:
-
-            for token, string in zip(stack[:len(expression)], expression):
-                if str(token) != string:
-                    break
-            else:
-
-                return len(expression)
-        return -1
-
-    @staticmethod
-    def parse(tokens: List[Union[Token, str]], productions: list, root) -> bool:
-        """Parses a list of tokens according to the
-        given grammar of productions\n
-        If the final token is not equal to the given root of the
-        Abstract Syntax Tree returns False
+    def add_production(self, name: str, rules: Dict[Tuple[str], Tuple[int]]):
+        """Adds a production to the production list
 
         Args:
-            tokens (List[Token | str]): a list of tokens
-            productions (list): the registered productions
-            root (Token): the root of the AST
-
-        Returns:
-            bool: True if the given tokens can be parsed, False otherwise
+            name (str): the name of the production
+            rules (Dict[Tuple[str], Tuple[int]]): the rules of the production
         """
+        self.productions.append(Production(name, rules))
 
-        stack = [EOF()]
+    def try_reduce(self, stack: List[Union[Token, ASTNode]]) -> bool:
+        """Attempts to reduce the stack to a production in the list
 
-        for token in tokens:
-            stack.insert(0, token)
+        Args:
+            stack (List[Token | ASTNode]): A list of tokens or AST Nodes
+        """
+        if not stack:
+            return False
 
-            print("Current Stack ", stack)
+        # check each production
+        for production in self.productions:
 
-            i = 0
-            while i < len(productions):
+            # check each rule
+            for rule in production:
 
-                reduce_range = productions[i].try_reduce(stack)
-                if reduce_range != -1:
-
-                    # reduce the top of the stack
-                    for _ in range(reduce_range):
-                        stack.pop(0)
-                    stack.insert(0, productions[i].__name__)
-                    i = 0
+                # stack smaller than rule -> cannot be reduced
+                if len(stack) < len(rule):
                     continue
-                i += 1
 
-        return stack[0] == root.__name__
+                for i, string in enumerate(rule):
+                    # top of stack doesnt follow rule -> cannot be reduced
+                    if stack[i] != string:
+                        break
+
+                # top of stack follows rule -> reduce
+                else:
+                    # create AST Node
+                    node = ASTNode(str(production))
+                    for index in production.get_indices(rule):
+                        node.add_children(stack[index])
+
+                    for _ in range(len(rule)):
+                        stack.pop(0)
+                    stack.insert(0, node)
+
+                    return True
+        return False
+
+    def parse(self, token_buffer: List[Token]) -> Union[ASTNode, None]:
+        """Parses the given token buffer and returns the Abstract Syntax Tree
+
+        Args:
+            token_buffer (List[Token]): a list of tokens returned by a lexer
+
+        Returns:
+            ASTNode | None: The AST or None if the buffer couldn't be parsed
+        """
+
+        inverted_buffer = token_buffer[::-1]
+
+        stack = ["EOF"]
+
+        i = -1
+        while i < len(inverted_buffer):
+
+            if self.try_reduce(stack):
+                continue
+
+            i += 1
+
+            if i < len(inverted_buffer):
+                stack.insert(0, inverted_buffer[i])
+
+        if str(stack[0]) == str(self.productions[0]):
+            return stack[0]
+
+        return None
