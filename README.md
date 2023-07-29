@@ -8,53 +8,39 @@ Tools to make a compiler in python
 
 ## Registering tokens
 
-The `Token` class from the `lexer` module can be used to register tokens.  
-The `@token` decorator must be used or a call to `dataclass(frozen=True, repr=False)` can be made in replacement. This will register the token as a dataclass.
-The registered token must be inherit from the `Token` class.
+A `Lexer` object can be used to register tokens.
 
 ```python
-from compyler import Token, token
-
-@token
-class INT(Token):
-    regex: str = r"[1-9][0-9]*"
-    func: Callable = int
+>>> from compyler import Lexer
+>>> lexer = Lexer()
+>>> lexer.add_token(name='INT', regex=r'0|[1-9][0-9]*')
 ```
 
-To run the lexer on a string, first, a list of tokens must be created in order of importance.  
-This means that the tokens with the highest priority must be placed first.  
-
-The order of importance grants that a token will not be confused with another at the time of scanning.
+The tokens are registered in order of importance.
 
 ```python
-@token
-class STRING(Token):
-    regex: str = r"\"(.|[ \t])*\""
-
-@token
-class ID(Token):
-    regex: str = r"[a-zA-Z_$][a-zA-Z0-9_$]*"
-
-TOKENS = [INT, STRING, ID]
+>>> from compyler import Lexer
+>>> lexer = Lexer()
+>>> lexer.add_token('ID', r'[a-zA-Z_$][a-zA-Z0-9_$]*')
+>>> lexer.add_token('STRING', r'\"(.|[ \t])*\"')
 ```
 
-*In this case, the ID token is a subset of the STRING token, so it would disrupt the scanning*.
+In the exemple above, two tokens are registered. Despite `ID` being a subset of `STRING`
+the lexer's greedy search makes so that the biggest match is found first, thus, `STRING: "spam"`
+is caught before than `ID: eggs`.
 
 ## Scanning a string
 
-To scan a string, the `Token.lex` method can be invoked.
+To scan a string, the `Lexer.tokenize` method can be invoked.
 
 ```python
->>> string = '1234 "spam" eggs'
->>> Token.lex(text=string, tokens=TOKENS)
-[INT, STRING, ID]
-```
-
-A list of tokens to be ignored can be given and those will be skipped at the time of scanning.
-
-```python
->>> Token.lex(text=string, tokens=TOKENS, ignore=[INT])
-[STRING, ID]
+>>> from compyler import Lexer
+>>> lexer = Lexer()
+>>> lexer.add_token(name='INT', regex=r'0|[1-9][0-9]*')
+>>> lexer.add_token('ID', r'[a-zA-Z_$][a-zA-Z0-9_$]*')
+>>> lexer.add_token('STRING', r'\"(.|[ \t])*\"')
+>>> lexer.tokenize('123 "spam" eggs')
+'[INT: 123, STRING: "spam", ID: eggs]'
 ```
 
 # Shift Reduce Parser
