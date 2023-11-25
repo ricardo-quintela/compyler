@@ -45,4 +45,76 @@ To scan a string, the `Lexer.tokenize` method can be invoked.
 
 # Shift Reduce Parser
 
-**wip**
+## Registering productions
+
+Productions can be created and registered using the `LALRParser` class:
+
+```python
+>>> from compyler import LALRParser
+>>> lalr_parser = LALRParser()
+>>> lalr_parser.add_production(
+...     "ProductionName",
+...     {
+...         ("Token1", "EOF"): (0,),
+...         ("Token1", "Token2", "EOF"): (0,1)
+...     }
+... )
+```
+
+A production **must** also include the indices of which tokens or other
+productions will be used as children on the AST.
+
+This means that if the production is:
+
+`Vardecl: ID EQ INT PLUS INT SEMICOLON`
+
+And the indices are `(2,4)`
+
+The result in the AST would be:
+
+```python
+Vardecl
+|   INT
+|   INT
+```
+
+
+On the example above:
+
+```python
+>>> from compyler import LALRParser
+>>> lalr_parser = LALRParser()
+>>> lalr_parser.add_production(
+...     "ProductionName",
+...     {
+...         ("Token1", "EOF"): (0,),
+...         ("Token1", "Token2", "EOF"): (0,1)
+...     }
+... )
+>>> lalr_parser[0]
+'ProductionName:  Token1 EOF -> $0
+                | Token1 Token2 EOF -> $0 $1'
+```
+
+**WIP**
+
+
+Stores the combinations of tokens that compose a production
+A production must also include the indices of which tokens or other
+productions will be used as children on the AST.
+
+This means that if the production is:
+    `Vardecl: ID EQ INT PLUS INT SEMICOLON`
+
+And the indices are (2,4)
+
+The result in the AST would be:
+
+```python
+Vardecl
+|   INT
+|   INT
+```
+    
+
+
