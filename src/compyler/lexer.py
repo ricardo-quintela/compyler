@@ -1,35 +1,8 @@
 """Contains a class ready to register tokens
 """
 import re
-from typing import List, Any, Set
-
-
-class Token:
-    """
-
-    Examples:
-        ```
-        >>> Token(name='INT', value=123)
-        INT: 123
-        ```
-    """
-    def __init__(self, name: str, value: Any) -> None:
-        self.name: str = name
-        self.value: Any = value
-
-    def __str__(self) -> str:
-        return self.name
-
-    def __hash__(self) -> int:
-        return hash(self.name)
-
-    def __eq__(self, __value: object) -> bool:
-        return self.name == str(__value)
-
-    def __repr__(self) -> str:
-        return f"{self.name}: {self.value}"
-
-
+from typing import List, Set
+from .token import Token
 
 class Lexer:
     """A lexer is composed by tokens\n

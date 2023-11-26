@@ -1,3 +1,4 @@
 from .lexer import Token, Lexer
 from .parsing_ast import ASTNode
-from .sr_parser import Production, LALRParser
+from .production import Production
+from .lalr_parser import LALRParser
