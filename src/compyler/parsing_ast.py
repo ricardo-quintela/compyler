@@ -13,9 +13,6 @@ class ASTNode:
     def __str__(self) -> str:
         return self.name
 
-    def __repr__(self) -> str:
-        return f"{self.name}({len(self.children)}): ({','.join(str(child) for child in self.children)})"
-
     def __len__(self):
         return len(self.children)
 
@@ -30,3 +27,10 @@ class ASTNode:
         """
         for child in children:
             self.children.append(child)
+
+    def __repr__(self):
+        ast_string = f"{self.name}"
+        for child in self.children:
+            ast_string += f"\n..{str(child.__repr__())}"
+
+        return ast_string
