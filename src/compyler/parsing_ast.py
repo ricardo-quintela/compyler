@@ -6,15 +6,12 @@ class ASTNode:
     """Stores a value and children
     """
 
-    def __init__(self, name=Union[Token, str]):
+    def __init__(self, name=Union[Token, str], children: List[Union[Token, ASTNode]] = None):
         self.name = name
-        self.children: List[Union[Token, ASTNode]] = list()
+        self.children: List[Union[Token, ASTNode]] = children if children is not None else list()
 
     def __str__(self) -> str:
         return self.name
-
-    def __repr__(self) -> str:
-        return f"{self.name}({len(self.children)}): ({','.join(str(child) for child in self.children)})"
 
     def __len__(self):
         return len(self.children)
@@ -30,3 +27,33 @@ class ASTNode:
         """
         for child in children:
             self.children.append(child)
+
+    def representation(self, level: int = 1) -> str:
+        """Returns a string representation of the
+        ASTNode object and it's children
+
+        It will be organised on a tree pattern
+
+        Args:
+            level (int, optional): the children level. Defaults to 1.
+
+        Returns:
+            str: the string representation of the ast
+        """
+        # print the name
+        ast_string = f"{self.name}"
+
+        # print the children
+        for child in self.children:
+            # add the indentation to the child
+            ast_string += "\n" + "| "*level
+
+            # recursively print the children
+            if isinstance(child, ASTNode):
+                ast_string += f"{str(child.representation(level+1))}"
+                continue
+
+            # just print the name of the token in case it isn't a child
+            ast_string += f"{repr(child)}"
+
+        return ast_string

@@ -6,8 +6,8 @@ lalr_parser = LALRParser()
 lalr_parser.add_production(
     "Program",
     {
-        ("Parent", "EOF"): (0,),
-        ("Parent", "Children", "EOF"): (0,1)
+        ("Parent"): (0,),
+        ("Parent", "Children"): (0,1)
     }
 )
 
