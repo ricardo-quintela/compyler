@@ -145,3 +145,17 @@ On the example above:
 >>> parsed_ast[0]
 ID: var
 ```
+
+## Getting the AST's representation
+
+The parsed AST can also be shown using a basic text representation.
+
+This is returned by calling the `representation()` method.
+
+On the example above:
+```python
+>>> parsed_ast.representation()
+VarDecl
+| ID: var
+| INT: 1
+```
