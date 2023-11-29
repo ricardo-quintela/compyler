@@ -15,7 +15,7 @@ def main(args):
     parsed_ast = lalr_parser.parse(buffer)
 
     print("BUFFER:\n", buffer)
-    print("PARSED AST: \n", parsed_ast)
+    print("PARSED AST:\n", parsed_ast.representation())
 
 if __name__ == "__main__":
     main(sys.argv)
