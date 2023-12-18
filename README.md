@@ -4,6 +4,12 @@ Tools to make a compiler in python
 # Requirements
 [Python 3](https://www.python.org/)
 
+# Instalation
+
+```sh
+python3 -m pip install compyler-tools
+```
+
 # Lexer
 
 ## Registering tokens
