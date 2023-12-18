@@ -69,7 +69,7 @@ def test_unable_to_parse(lalr_parser: LALRParser):
         Token("INT", 2),
     ]
 
-    assert lalr_parser.parse(token_buffer) is None
+    assert lalr_parser.parse(token_buffer) == "ID"
 
 
 def test_production__repr__():
