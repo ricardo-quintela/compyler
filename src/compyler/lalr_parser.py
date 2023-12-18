@@ -71,14 +71,16 @@ class LALRParser:
                     return True
         return False
 
-    def parse(self, token_buffer: List[Token]) -> Union[ASTNode, None]:
-        """Parses the given token buffer and returns the Abstract Syntax Tree
+    def parse(self, token_buffer: List[Token]) -> Union[ASTNode, Token]:
+        """Parses the given token buffer and returns the Abstract Syntax Tree\n
+        If the parser is unable to reduce all of the productions to a single one
+        then the first element on the stack will be returned
 
         Args:
             token_buffer (List[Token]): a list of tokens returned by a lexer
 
         Returns:
-            ASTNode | None: The AST or None if the buffer couldn't be parsed
+            (ASTNode | Token): The AST
         """
 
         inverted_buffer = token_buffer[::-1]
@@ -96,7 +98,4 @@ class LALRParser:
             if i < len(inverted_buffer):
                 stack.insert(0, inverted_buffer[i])
 
-        if str(stack[0]) == str(self.productions[0]):
-            return stack[0]
-
-        return None
+        return stack[0]
