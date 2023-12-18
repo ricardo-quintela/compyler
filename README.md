@@ -132,7 +132,8 @@ After registering the productions on the parser a tokenized string can be parsed
 VarDecl
 ```
 
-The result of the parsing process will either be a `ASTNone` on **success** object or `None` in case the parsing **fails**.
+The result of the parsing process will either be a `ASTNode` object on **success** and if it **fails** the
+first element of the stack.
 
 ## Accessing a AST node's children
 
