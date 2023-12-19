@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.2'
+VERSION = '0.3'
 DESCRIPTION = 'Tools to make a compiler in python'
 LONG_DESCRIPTION = 'A package that contains a lexer and a parser that creates an AST.'
 

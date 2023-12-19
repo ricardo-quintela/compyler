@@ -22,6 +22,9 @@ class ASTNode:
     def __getitem__(self, __index):
         return self.children[__index]
 
+    def __repr__(self) -> str:
+        return self.name
+
     def add_children(self, *children: Union[Token, ASTNode]):
         """Adds children to the end of the children's list
         """
